@@ -71,25 +71,30 @@
       <p class="lead fw-normal">${mensaje}</p>
         </div>
         
-        <form action="Servlet?op=${operacion}" method="post">
+        <form action="Servlet?op=${operacion}" method="POST" enctype="multipart/form-data">
             <input type="hidden" value="${operacion}" name="op">
             <input type="hidden" value="${libro.id}" name="id" class="form-control" />
             <div class="row"> 
             <div class="col-12 col-sm-6 col-lg-3">
-                <label for="nombre">Titulo: </label>
+                <label for="titulo">Titulo: </label>
                 <input type="text" value="${libro.titulo}" name="titulo" class="form-control"/>
             </div>
             <div class="col-12 col-sm-6 col-lg-3">
-                <label for="categoria">Autor: </label>
+                <label for="autor">Autor: </label>
                 <input type="text" value="${libro.autor}" name="autor" class="form-control"/>
             </div>
             <div class="col-12 col-sm-6 col-lg-3">
-                <label for="precio">ISBN: </label>
+                <label for="isbn">ISBN: </label>
                 <input type="text" value="${libro.isbn}" name="isbn" class="form-control"/>
             </div>
             <div class="col-12 col-sm-6 col-lg-3">
-                <label for="imagen">Precio: </label>
+                <label for="precio">Precio: </label>
                 <input type="text" value="${libro.precio}" name="precio" class="form-control"/>
+            </div>
+            <div class="col-12 col-sm-6 col-lg-3">
+                <label for="portada">Portada: ${producto.imagen} </label>
+                <input type="file"  name="portada" class="form-control"/>
+                <img src="ficheros/${libro.portada}" width="100"/>
             </div>
             
             <input type="submit" value="${operacion}" class="btn btn-default">

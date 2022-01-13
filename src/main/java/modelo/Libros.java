@@ -32,7 +32,8 @@ import javax.xml.bind.annotation.XmlRootElement;
     @NamedQuery(name = "Libros.findByTitulo", query = "SELECT l FROM Libros l WHERE l.titulo = :titulo"),
     @NamedQuery(name = "Libros.findByAutor", query = "SELECT l FROM Libros l WHERE l.autor = :autor"),
     @NamedQuery(name = "Libros.findByIsbn", query = "SELECT l FROM Libros l WHERE l.isbn = :isbn"),
-    @NamedQuery(name = "Libros.findByPrecio", query = "SELECT l FROM Libros l WHERE l.precio = :precio")})
+    @NamedQuery(name = "Libros.findByPrecio", query = "SELECT l FROM Libros l WHERE l.precio = :precio"),
+    @NamedQuery(name = "Libros.findByPortada", query = "SELECT l FROM Libros l WHERE l.portada = :portada")})
 public class Libros implements Serializable {
 
     private static final long serialVersionUID = 1L;
@@ -59,6 +60,11 @@ public class Libros implements Serializable {
     @NotNull
     @Column(name = "precio")
     private float precio;
+    @Basic(optional = false)
+    @NotNull
+    @Size(min = 1, max = 100)
+    @Column(name = "portada")
+    private String portada;
 
     public Libros() {
     }
@@ -67,12 +73,13 @@ public class Libros implements Serializable {
         this.id = id;
     }
 
-    public Libros(Integer id, String titulo, String autor, long isbn, float precio) {
+    public Libros(Integer id, String titulo, String autor, long isbn, float precio, String portada) {
         this.id = id;
         this.titulo = titulo;
         this.autor = autor;
         this.isbn = isbn;
         this.precio = precio;
+        this.portada = portada;
     }
 
     public Integer getId() {
@@ -113,6 +120,14 @@ public class Libros implements Serializable {
 
     public void setPrecio(float precio) {
         this.precio = precio;
+    }
+
+    public String getPortada() {
+        return portada;
+    }
+
+    public void setPortada(String portada) {
+        this.portada = portada;
     }
 
     @Override

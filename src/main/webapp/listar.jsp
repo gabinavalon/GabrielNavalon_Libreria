@@ -80,6 +80,7 @@
                <th scope="col">Autor</th>
                <th scope="col">ISBN</th>
                <th scope="col">Precio</th>
+               <th scope="col">Portada</th>
            </tr>
 
         <%  
@@ -93,6 +94,7 @@
                <td> <%=  l.getAutor() %> </td>
                <td> <%=  l.getIsbn() %> </td>
                <td> <%=  l.getPrecio() %> </td>
+               <td> <img src="ficheros/<%=  l.getPortada() %>" width="80" /> </td>
                <td> <a href="Servlet?op=borrar&id=<%= l.getId() %>" onclick='return Confirmation()'>Borrar</a></td>
                <td> <a href="Servlet?op=actualizar&id=<%= l.getId() %>">Modificar</a></td>
            </tr>

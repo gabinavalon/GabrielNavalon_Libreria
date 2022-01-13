@@ -5,13 +5,21 @@
  */
 package controlador;
 
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.nio.file.StandardCopyOption;
 import java.util.List;
+import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.annotation.MultipartConfig;
 import javax.servlet.annotation.WebServlet;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.Part;
 import modelo.Libros;
 import modelo.LibrosCrud;
 
@@ -19,14 +27,23 @@ import modelo.LibrosCrud;
  *
  * @author DAW-A
  */
+@MultipartConfig( fileSizeThreshold=1024*1024*10, 
+            maxFileSize=1024*1024*50, maxRequestSize=1024*1024*10)
 @WebServlet(name = "Servlet", urlPatterns = {"/Servlet"})
 public class Servlet extends HttpServlet {
     final int NUM_LINEAS_PAGINA = 5;
     List<Libros> listaLibros = LibrosCrud.getLibros();
     int pagina = 1;
-    int offset = 0;                
+    int offset = 0;      
+    String path = "";          
     int num_paginas = (int) Math.ceil(listaLibros.size()/(double)NUM_LINEAS_PAGINA);
-    /**
+    
+    public void init(ServletConfig config){
+    path = config.getServletContext().getRealPath("").
+                        concat(File.separator).concat("ficheros");
+
+    }    
+/**
      * Processes requests for both HTTP <code>GET</code> and <code>POST</code>
      * methods.
      *
@@ -52,6 +69,7 @@ public class Servlet extends HttpServlet {
                 request.setAttribute("pagina", pagina);
                 request.setAttribute("num_paginas", num_paginas);
                 request.setAttribute("mensaje", "");
+request.setAttribute("path", path);
                 request.getRequestDispatcher("listar.jsp").forward(request, response);
          
     } else if (op.equals("insert")){
@@ -66,6 +84,7 @@ public class Servlet extends HttpServlet {
              long isbn = Long.parseLong(request.getParameter("isbn"));
              Float precio= Float.parseFloat(request.getParameter("precio"));
 
+             String portada = this.subirArchivo(request, response);
              
              Libros miLibro = new Libros();
              
@@ -73,6 +92,7 @@ public class Servlet extends HttpServlet {
              miLibro.setAutor(autor);
              miLibro.setIsbn(isbn);
              miLibro.setPrecio(precio);
+             miLibro.setPortada(portada);
               
                 LibrosCrud.insertaLibro(miLibro);
                 
@@ -81,6 +101,7 @@ public class Servlet extends HttpServlet {
                 request.setAttribute("listado", listaLibros);
                 request.setAttribute("mensaje", "");
                 request.setAttribute("pagina", pagina);
+request.setAttribute("path", path);
                 request.setAttribute("num_paginas", num_paginas);
                 request.getRequestDispatcher("listar.jsp").forward(request, response);
                 
@@ -102,6 +123,7 @@ public class Servlet extends HttpServlet {
                 int id = Integer.parseInt(request.getParameter("id"));
                 Libros miLibro = LibrosCrud.getLibro(id);
                 request.setAttribute("libro", miLibro);
+                request.setAttribute("path", path);
                 request.setAttribute("operacion", "Modificar");
                 request.getRequestDispatcher("modificar.jsp").forward(request, response);
      }else if (op.equals("Modificar")) {
@@ -111,6 +133,7 @@ public class Servlet extends HttpServlet {
              String autor= request.getParameter("autor");
              long isbn = Long.parseLong(request.getParameter("isbn"));
              Float precio= Float.parseFloat(request.getParameter("precio"));
+             String portada = this.subirArchivo(request, response);
              
              Libros miLibro = new Libros();
              
@@ -119,6 +142,7 @@ public class Servlet extends HttpServlet {
              miLibro.setAutor(autor);
              miLibro.setIsbn(isbn);
              miLibro.setPrecio(precio);
+             miLibro.setPortada(portada);
               
                 if (LibrosCrud.actualizaLibro(miLibro)>0) {
                      request.setAttribute("mensaje", "El producto se ha actualizao");
@@ -128,9 +152,12 @@ public class Servlet extends HttpServlet {
                 request.setAttribute("operacion", "Modificar");
                 listaLibros = LibrosCrud.getLibros();
                 request.setAttribute("libro", miLibro);
+request.setAttribute("path", path);
                 request.getRequestDispatcher("modificar.jsp").forward(request, response);
      }
      }
+
+
             
     // <editor-fold defaultstate="collapsed" desc="HttpServlet methods. Click on the + sign on the left to edit the code.">
     /**
@@ -171,9 +198,25 @@ public class Servlet extends HttpServlet {
         return "Short description";
     }// </editor-fold>
 
-    private void listar(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
-        
-                
+  public String  subirArchivo(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException{
+    // path = request.getServletContext().getRealPath("").concat(File.separator).concat("ficheros");
+    Part filePart = request.getPart("portada"); // Obtiene el archivo el input en el form se llama imagen
+    String fileName = Paths.get(filePart.getSubmittedFileName()).getFileName().toString(); // MSIE fix.
+
+    //InputStream fileContent = filePart.getInputStream(); //Lo transforma en InputStream
+
+    //String path="/archivos/";
+    File uploads = new File(path); //Carpeta donde se guardan los archivos
+    uploads.mkdirs(); //Crea los directorios necesarios
+    File file = File.createTempFile("cod"+""+"-", "-"+fileName, uploads); //Evita que hayan dos archivos con el mismo nombre
+
+    try (InputStream input = filePart.getInputStream()){
+        Files.copy(input, file.toPath(), StandardCopyOption.REPLACE_EXISTING);
     }
+
+    //return file.getPath();
+    String archivo = file.getName();
+    return archivo;
+}
 
 }

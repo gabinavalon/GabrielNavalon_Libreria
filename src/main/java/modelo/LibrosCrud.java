@@ -52,12 +52,13 @@ public class LibrosCrud {
     public static int actualizaLibro(Libros miLibro) {
         EntityManagerFactory factory = Persistence.createEntityManagerFactory("unidad");
         EntityManager manager = factory.createEntityManager();
-        String sql = "UPDATE Libros l SET l.titulo = :titulo, l.autor = :autor, l.isbn = :isbn, l.precio = :precio WHERE l.id = :id";
+        String sql = "UPDATE Libros l SET l.titulo = :titulo, l.autor = :autor, l.isbn = :isbn, l.precio = :precio , l.portada = :portada  WHERE l.id = :id";
         Query q = manager.createQuery(sql, Libros.class);
         q.setParameter("titulo", miLibro.getTitulo());
         q.setParameter("autor", miLibro.getAutor());
         q.setParameter("isbn", miLibro.getIsbn());
         q.setParameter("precio", miLibro.getPrecio());
+        q.setParameter("portada", miLibro.getPortada());
         q.setParameter("id", miLibro.getId());
         manager.getTransaction().begin();
         int filasAfectadas = q.executeUpdate();
